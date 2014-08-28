@@ -21,7 +21,10 @@
  * questions.
  *
  */
-
+/**
+ * HotSpot JNI实现
+ * 提供jvm.dll/jvm.so 对外的接口的实现
+ */
 #include "precompiled.hpp"
 #include "classfile/classLoader.hpp"
 #include "classfile/javaClasses.hpp"
@@ -115,6 +118,7 @@ static jint CurrentVersion = JNI_VERSION_1_6;
 //   return_value = 5;
 //   return return_value;
 // JNI_END
+//Dtrace 相关的宏定义，不是核心逻辑（solaris系统）
 #define DT_RETURN_MARK_DECL(name, type)                                    \
   HS_DTRACE_PROBE_DECL1(hotspot_jni, name##__return, type);                \
   DTRACE_ONLY(                                                             \
@@ -3265,6 +3269,7 @@ extern const struct JNIInvokeInterface_ jni_InvokeInterface;
 volatile jint vm_created = 0;
 // Indicate whether it is safe to recreate VM
 volatile jint safe_to_recreate_vm = 1;
+//全局main_vm
 struct JavaVM_ main_vm = {&jni_InvokeInterface};
 
 
@@ -3296,9 +3301,14 @@ _JNI_IMPORT_OR_EXPORT_ jint JNICALL JNI_GetDefaultJavaVMInitArgs(void *args_) {
   return ret;
 }
 
+
 HS_DTRACE_PROBE_DECL3(hotspot_jni, CreateJavaVM__entry, vm, penv, args);
 DT_RETURN_MARK_DECL(CreateJavaVM, jint);
 
+/**
+ * jvm.dll/jvm.so "JNI_CreateJavaVM" 接口的实现
+ * 方法根据args会初始化出 jvm  env对象
+ */
 _JNI_IMPORT_OR_EXPORT_ jint JNICALL JNI_CreateJavaVM(JavaVM **vm, void **penv, void *args) {
   HS_DTRACE_PROBE3(hotspot_jni, CreateJavaVM__entry, vm, penv, args);
 
@@ -3357,7 +3367,9 @@ _JNI_IMPORT_OR_EXPORT_ jint JNICALL JNI_CreateJavaVM(JavaVM **vm, void **penv, v
   if (result == JNI_OK) {
     JavaThread *thread = JavaThread::current();
     /* thread is thread_in_vm here */
+    //将main_vm作为out parameter 返回
     *vm = (JavaVM *)(&main_vm);
+    //从vm thread中获取环境信息
     *(JNIEnv**)penv = thread->jni_environment();
 
     // Tracks the time application was running before GC

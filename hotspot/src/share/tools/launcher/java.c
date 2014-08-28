@@ -222,6 +222,9 @@ struct JavaMainArgs {
 
 /*
  * Entry point.
+ * 生成java.exe(windows)/java(*nux)
+ * 作为入口地址
+ * 只是一个简单的lanucher，会加载动态链接库jvm.dll/jvm.os并调用jvm的方法
  */
 int
 main(int argc, char ** argv)
@@ -242,6 +245,7 @@ main(int argc, char ** argv)
     }
 
 #ifndef GAMMA
+    //GAMMA 是将jvm一起编译，用于调试
     /*
      * Make sure the specified version of the JRE is running.
      *
@@ -282,6 +286,7 @@ main(int argc, char ** argv)
 
     if (_launcher_debug)
       start = CounterGet();
+    //加载JVM，并且获取JNI接口，将地址保存到ifn，供操作jvm使用
     if (!LoadJavaVM(jvmpath, &ifn)) {
       exit(6);
     }
@@ -385,7 +390,7 @@ main(int argc, char ** argv)
       args.jarfile = jarfile;
       args.classname = classname;
       args.ifn = ifn;
-
+      //启动一个新线程继续执行JavaMain中的代码
       return ContinueInNewThread(JavaMain, threadStackSize, (void*)&args);
     }
 }
@@ -420,6 +425,8 @@ JavaMain(void * _args)
 
     if (_launcher_debug)
         start = CounterGet();
+    //InitializeJVM 使用ifn中的CreateJavaVM方法初始化vm env（实际的JNI_CreateJavaVM方法在/vm/prims/jni.cpp中
+    //同时将其他JNI接口定义方法地址赋值到env中
     if (!InitializeJVM(&vm, &env, &ifn)) {
         ReportErrorMessage("Could not create the Java virtual machine.",
                            JNI_TRUE);
@@ -493,6 +500,7 @@ JavaMain(void * _args)
      */
     if (jarfile != 0) {
         mainClassName = GetMainClassName(env, jarfile);
+        //(*env)->ExceptionOccurred  vm/prims/jni.cpp jni_ExceptionOccurred
         if ((*env)->ExceptionOccurred(env)) {
             ReportExceptionDescription(env);
             goto leave;
