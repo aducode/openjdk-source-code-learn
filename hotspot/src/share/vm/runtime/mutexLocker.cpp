@@ -166,9 +166,26 @@ void assert_lock_strong(const Monitor * lock) {
 }
 
 void mutex_init() {
+	/*
+	 //same
+	 tty_lock = new Mutex(Mutex::event, "tty_lock", true);
+	 assert(_num_mutex<MAX_NUM_MUTEX, "increase MAX_NUM_MUTEX");
+	 _mutex_array[_num_mutex++]=tty_lock;
+	 */
   def(tty_lock                     , Mutex  , event,       true ); // allow to lock in VM
-
+  /*
+   //same
+	 CGC_lock = new Monitor(Mutex::special, "CGC_lock", true);
+	 assert(_num_mutex<MAX_NUM_MUTEX, "increase MAX_NUM_MUTEX");
+	 _mutex_array[_num_mutex++]=CGC_lock;
+   */
   def(CGC_lock                   , Monitor, special,     true ); // coordinate between fore- and background GC
+  /*
+   //same
+	 STS_init_lock = new Monitor(Mutex::leaf, "STS_init_lock", true);
+	 assert(_num_mutex<MAX_NUM_MUTEX, "increase MAX_NUM_MUTEX");
+	 _mutex_array[_num_mutex++]=STS_init_lock;
+   * */
   def(STS_init_lock              , Mutex,   leaf,        true );
   if (UseConcMarkSweepGC) {
     def(iCMS_lock                  , Monitor, special,     true ); // CMS incremental mode start/stop notification

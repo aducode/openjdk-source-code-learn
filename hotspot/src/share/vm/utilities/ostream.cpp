@@ -305,6 +305,7 @@ char* stringStream::as_string() {
 stringStream::~stringStream() {}
 
 xmlStream*   xtty;
+//ostream.hpp中extern outputStream *tty 进行了声明，相当于单例
 outputStream* tty;
 outputStream* gclog_or_tty;
 extern Mutex* tty_lock;
@@ -731,10 +732,12 @@ void ttyLocker::break_tty_lock_for_safepoint(intx holder) {
 }
 
 void ostream_init() {
+//defaultStream单例初始化，只调用一次
   if (defaultStream::instance == NULL) {
+	 //new(ResourceObj::C_HEAP) defaultStream() 表明在C语言（操作系统）堆上分配空间
     defaultStream::instance = new(ResourceObj::C_HEAP) defaultStream();
+    //tty实例赋值 defaultStream是outputStream类的子类
     tty = defaultStream::instance;
-
     // We want to ensure that time stamps in GC logs consider time 0
     // the time when the JVM is initialized, not the first time we ask
     // for a time stamp. So, here, we explicitly update the time stamp

@@ -46,6 +46,10 @@
 
 // Implementation of ThreadShadow
 void check_ThreadShadow() {
+	//ThreadShadow
+	// The ThreadShadow class is a helper class to access the _pending_exception
+	// field of the Thread class w/o having access to the Thread's interface (for
+	// include hierachy reasons).
   const ByteSize offset1 = byte_offset_of(ThreadShadow, _pending_exception);
   const ByteSize offset2 = Thread::pending_exception_offset();
   if (offset1 != offset2) fatal("ThreadShadow::_pending_exception is not positioned correctly");

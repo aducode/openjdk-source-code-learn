@@ -100,6 +100,9 @@ class Monitor : public CHeapObj {
   // The rank named "leaf" is probably historical (and should
   // be changed) -- mutexes of this rank aren't really leaf mutexes
   // at all.
+	//此处使用enum相当于定义了
+	//const static int event=0;
+	//const static int special = 1; 这种形式
   enum lock_types {
        event,
        special,

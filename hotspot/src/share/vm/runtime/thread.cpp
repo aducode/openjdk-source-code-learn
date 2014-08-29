@@ -1324,6 +1324,7 @@ SATBMarkQueueSet JavaThread::_satb_mark_queue_set;
 DirtyCardQueueSet JavaThread::_dirty_card_queue_set;
 #endif // !SERIALGC
 
+//is_attaching default is false
 JavaThread::JavaThread(bool is_attaching) :
   Thread()
 #ifndef SERIALGC
@@ -3004,20 +3005,25 @@ void Threads::threads_do(ThreadClosure* tc) {
   // If CompilerThreads ever become non-JavaThreads, add them here
 }
 
+//初始化VM并创建VM的主线程
 jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
 
   extern void JDK_Version_init();
 
   // Check version
+  //检查Java版本（1.2 1.4 1.6）
   if (!is_supported_jni_version(args->version)) return JNI_EVERSION;
 
   // Initialize the output stream module
+  //初始化控制台输出
   ostream_init();
 
   // Process java launcher properties.
   Arguments::process_sun_java_launcher_properties(args);
 
   // Initialize the os module before using TLS
+  //初始化操作系统的一些信息
+  //根据不同平台编译连接到不同平台的源码中
   os::init();
 
   // Initialize system properties.
@@ -3030,13 +3036,22 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   Arguments::init_version_specific_system_properties();
 
   // Parse arguments
+  //解析jvm参数，Argument类全部为静态方法，相当于java中的工具类
+  //解析args参数列表，根据一些选项打开/关闭一些全局flag
   jint parse_result = Arguments::parse(args);
   if (parse_result != JNI_OK) return parse_result;
 
+  //启动是是否暂停
+  //这个flag是RUNTIME_FLAGS 宏定义的
+  //在globals.hpp
+  //diagnostic(bool, PauseAtStartup,      false,                              \			//
+  //"Causes the VM to pause at startup time and wait for the pause "  \	//
+  //"file to be removed (default: ./vm.paused.<pid>)")                \			//
   if (PauseAtStartup) {
     os::pause();
   }
 
+  //Dtrace相关
   HS_DTRACE_PROBE(hotspot, vm__init__begin);
 
   // Record VM creation timing statistics
@@ -3047,12 +3062,13 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   TraceTime timer("Create VM", TraceStartupTime);
 
   // Initialize the os module after parsing the args
+  //根据参数设置一些全局flag后，继续初始化系统信息
   jint os_init_2_result = os::init_2();
   if (os_init_2_result != JNI_OK) return os_init_2_result;
 
   // Initialize output stream logging
   ostream_init_log();
-
+  //加载Agent（JVMTI客户端）库
   // Convert -Xrun to -agentlib: if there is no JVM_OnLoad
   // Must be before create_vm_init_agents()
   if (Arguments::init_libraries_at_startup()) {
@@ -3063,20 +3079,25 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   if (Arguments::init_agents_at_startup()) {
     create_vm_init_agents();
   }
-
+  //处理线程
   // Initialize Threads state
+  //初始化类静态变量 Thread::_thread_list
   _thread_list = NULL;
+  //初始化类静态变量 Thread::_number_of_threads jvm线程数
   _number_of_threads = 0;
+  //初始化类静态变量 Thread::_number_of_non_daemon_threads jvm非守护线程数
   _number_of_non_daemon_threads = 0;
 
-  // Initialize TLS
+  // Initialize TLS(系统级别的线程本地数据，每个线程单独保存一份数据）
   ThreadLocalStorage::init();
 
   // Initialize global data structures and create system classes in heap
   vm_init_globals();
 
   // Attach the main thread to this os thread
+  //将java级别的主线程线程关联到系统进程中
   JavaThread* main_thread = new JavaThread();
+  //设置线程状态
   main_thread->set_thread_state(_thread_in_vm);
   // must do this before set_active_handles and initialize_thread_local_storage
   // Note: on solaris initialize_thread_local_storage() will (indirectly)
@@ -3101,6 +3122,7 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   main_thread->create_stack_guard_pages();
 
   // Initialize Java-Level synchronization subsystem
+  //初始化java级别的同步代码
   ObjectMonitor::Initialize() ;
 
   // Initialize global modules

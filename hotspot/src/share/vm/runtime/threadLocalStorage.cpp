@@ -54,10 +54,15 @@ void ThreadLocalStorage::set_thread(Thread* thread) {
 }
 
 void ThreadLocalStorage::init() {
+	//保证只初始化一次
   assert(!is_initialized(),
          "More than one attempt to initialize threadLocalStorage");
+  //不同操作系统有不同实现根据宏定义选择具体实现
   pd_init();
+  //设置类静态成员_thread_index 的值
+  //os::allocate_thread_local_storage()会根据不同操作系统返回系统级别的thread local storage 的key
   set_thread_index(os::allocate_thread_local_storage());
+  //
   generate_code_for_get_thread();
 }
 

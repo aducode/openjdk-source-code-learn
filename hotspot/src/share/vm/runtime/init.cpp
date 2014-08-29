@@ -77,32 +77,48 @@ void stubRoutines_init2(); // note: StubRoutines need 2-phase init
 void perfMemory_exit();
 void ostream_exit();
 
+// Initialize global data structures and create system classes in heap
 void vm_init_globals() {
+	//做一些检查
   check_ThreadShadow();
+  //根据平台 操作系统位数做一些基本类型检查和初始化工作
   basic_types_init();
+  //初始化event log buffer
   eventlog_init();
+  //初始化mutex 用于互斥
   mutex_init();
+  //初始化chunk pool 里面三个chunked list
+  //使用os 的malloc分配系统堆内存，并作为堆块池共用
   chunkpool_init();
+  //perf data  性能监控相关初始化
   perfMemory_init();
 }
 
 
 jint init_globals() {
   HandleMark hm;
+  //初始化一些计数器
   management_init();
+  //初始化java字节码指令
   bytecodes_init();
+  //初始化system  class loader
   classLoader_init();
+  //
   codeCache_init();
   VM_Version_init();
   stubRoutines_init1();
   jint status = universe_init();  // dependent on codeCache_init and stubRoutines_init
   if (status != JNI_OK)
     return status;
-
+  //初始化解释器
   interpreter_init();  // before any methods loaded
+  //执行计数器，用于JIT优化
   invocationCounter_init();  // before any methods loaded
+  //gc
   marksweep_init();
+  //控制
   accessFlags_init();
+  //
   templateTable_init();
   InterfaceSupport_init();
   SharedRuntime::generate_stubs();

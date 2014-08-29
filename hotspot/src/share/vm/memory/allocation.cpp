@@ -60,7 +60,7 @@ void* StackObj::operator new(size_t size)  { ShouldNotCallThis(); return 0; };
 void  StackObj::operator delete(void* p)   { ShouldNotCallThis(); };
 void* _ValueObj::operator new(size_t size)  { ShouldNotCallThis(); return 0; };
 void  _ValueObj::operator delete(void* p)   { ShouldNotCallThis(); };
-
+//重载C Heap new操作的逻辑
 void* ResourceObj::operator new(size_t size, allocation_type type) {
   address res;
   switch (type) {

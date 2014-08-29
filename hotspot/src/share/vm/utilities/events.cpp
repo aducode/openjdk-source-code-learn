@@ -177,7 +177,9 @@ class EventBuffer : AllStatic {
 
   static void init() {
     // Allocate the event buffer
+	  //通过宏定义 2000
     size   = EventLogLength;
+    //Event的buffer
     buffer = NEW_C_HEAP_ARRAY(Event, size);
 
     _current_event_id = 0;
@@ -190,7 +192,7 @@ class EventBuffer : AllStatic {
   }
 };
 
-Event*           EventBuffer::buffer;
+Event*           EventBuffer::buffer; //全局
 int              EventBuffer::size;
 volatile EventID EventBuffer::_current_event_id;
 int              EventBuffer::indent;

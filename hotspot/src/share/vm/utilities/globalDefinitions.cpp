@@ -56,14 +56,16 @@ void basic_fatal(const char* msg) {
 // Something to help porters sleep at night
 
 void basic_types_init() {
-#ifdef ASSERT
+#ifdef ASSERT //启用assert 检查输出错误
 #ifdef _LP64
+	//64位整形最大值 最小值 长度断言
   assert(min_intx ==  (intx)CONST64(0x8000000000000000), "correct constant");
   assert(max_intx ==  CONST64(0x7FFFFFFFFFFFFFFF), "correct constant");
   assert(max_uintx == CONST64(0xFFFFFFFFFFFFFFFF), "correct constant");
   assert( 8 == sizeof( intx),      "wrong size for basic type");
   assert( 8 == sizeof( jobject),   "wrong size for basic type");
 #else
+  //32位整形最大值 最小值 长度断言
   assert(min_intx ==  (intx)0x80000000,  "correct constant");
   assert(max_intx ==  0x7FFFFFFF,  "correct constant");
   assert(max_uintx == 0xFFFFFFFF,  "correct constant");
@@ -86,6 +88,7 @@ void basic_types_init() {
   assert( 2 == sizeof( u2),        "wrong size for basic type");
   assert( 4 == sizeof( u4),        "wrong size for basic type");
 
+  //检查java内置基本类型的映射是否正确
   int num_type_chars = 0;
   for (int i = 0; i < 99; i++) {
     if (type2char((BasicType)i) != 0) {
@@ -93,6 +96,7 @@ void basic_types_init() {
       num_type_chars++;
     }
   }
+  //是否检查过11种基本类型
   assert(num_type_chars == 11, "must have tested the right number of mappings");
   assert(char2type(0) == T_ILLEGAL, "correct illegality");
 
@@ -158,7 +162,7 @@ void basic_types_init() {
 
   // Set the size of basic types here (after argument parsing but before
   // stub generation).
-  if (UseCompressedOops) {
+  if (UseCompressedOops) {//对象压缩
     // Size info for oops within java objects is fixed
     heapOopSize        = jintSize;
     LogBytesPerHeapOop = LogBytesPerInt;

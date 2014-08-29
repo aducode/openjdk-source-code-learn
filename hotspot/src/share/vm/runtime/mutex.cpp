@@ -302,6 +302,7 @@ static int Stall (int its) {
   return v ;
 }
 
+//Compare & Set 无锁的方式实现互斥
 int Monitor::TryLock () {
   intptr_t v = _LockWord.FullWord ;
   for (;;) {

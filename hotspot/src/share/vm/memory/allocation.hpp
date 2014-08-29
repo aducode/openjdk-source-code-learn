@@ -369,17 +369,24 @@ class ResourceObj ALLOCATION_SUPER_CLASS_SPEC {
 #endif // ASSERT
 
  public:
+  //重载ResourceObj类及其子类的new 操作
+  //operator new / operator delete 这两个方法比较特殊，无论是否声明为static 方法都为static
+  //以下声明还可以是： static void* operator new(size_t size, allocation_type type);
+  //使用方式 new(type) ResourceObj
   void* operator new(size_t size, allocation_type type);
+  //new(&arena) ResourceObj
   void* operator new(size_t size, Arena *arena) {
       address res = (address)arena->Amalloc(size);
       DEBUG_ONLY(set_allocation_type(res, ARENA);)
       return res;
   }
+  //new ResourceObj
   void* operator new(size_t size) {
       address res = (address)resource_allocate_bytes(size);
       DEBUG_ONLY(set_allocation_type(res, RESOURCE_AREA);)
       return res;
   }
+  //重载ResourceObj类及其子类的delete操作
   void  operator delete(void* p);
 };
 
