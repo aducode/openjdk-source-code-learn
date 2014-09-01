@@ -1033,6 +1033,7 @@ void CompileBroker::compile_method_base(methodHandle method,
     }
 
     // Should this thread wait for completion of the compile?
+    //jit编译时是否阻塞
     blocking = is_compile_blocking(method, osr_bci);
 
     // We will enter the compilation in the queue.
@@ -1085,7 +1086,15 @@ void CompileBroker::compile_method_base(methodHandle method,
   }
 }
 
-
+/**
+ * jit编译机器码
+ * @param method  java方法信息:包含java字节码 methodHandle.methodOop.constMethodOop字段
+ * @param osr_bci  see globalDefiniations.cpp MethodCompilation
+ * @param comp_level 编译级别
+ * @param hot_method
+ * @param hot_count
+ * @return nmethod*  机器码指令序列
+ */
 nmethod* CompileBroker::compile_method(methodHandle method, int osr_bci,
                                        int comp_level,
                                        methodHandle hot_method, int hot_count,
@@ -1200,6 +1209,7 @@ nmethod* CompileBroker::compile_method(methodHandle method, int osr_bci,
       return NULL;
     }
   } else {
+	  //jit编译
     compile_method_base(method, osr_bci, comp_level, hot_method, hot_count, comment, CHECK_0);
   }
 

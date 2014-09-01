@@ -96,7 +96,15 @@ void CompilationPolicy::completed_vm_startup() {
 // Returns true if m must be compiled before executing it
 // This is intended to force compiles for methods (usually for
 // debugging) that would otherwise be interpreted for some reason.
+//comp_level默认值CompLevel_all=-1
 bool CompilationPolicy::must_be_compiled(methodHandle m, int comp_level) {
+	//说明：
+	//m为methodHandle类型的对象
+	//调用m中的方法正常应该是m.some_method()
+	//此处能够使用m->has_compiled_code()是因为methodHandle类中声明了operator ->方法，返回一个methodOop类型对象(class methodOopDesc *)
+	//has_compiled_code()为methodOopDesc类型中的方法
+	//m->has_compiled_code()等价于
+	//(m.operator->())->has_compiled_code()
   if (m->has_compiled_code()) return false;       // already compiled
   if (!can_be_compiled(m, comp_level)) return false;
 

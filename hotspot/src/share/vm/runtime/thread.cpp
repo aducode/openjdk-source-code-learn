@@ -3157,7 +3157,7 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   { TraceTime timer("Start VMThread", TraceStartupTime);
     VMThread::create();
     Thread* vmthread = VMThread::vm_thread();
-
+    //根据vmthread创建系统线程
     if (!os::create_thread(vmthread, os::vm_thread))
       vm_exit_during_initialization("Cannot create VM thread. Out of system resources.");
 
@@ -3195,10 +3195,11 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
     TraceTime timer("Initialize java.lang classes", TraceStartupTime);
 
     if (EagerXrunInit && Arguments::init_libraries_at_startup()) {
+    	//
       create_vm_init_libraries();
     }
 
-    if (InitializeJavaLangString) {
+    if (InitializeJavaLangString) {//初始化String类
       initialize_class(vmSymbols::java_lang_String(), CHECK_0);
     } else {
       warning("java.lang.String not initialized");
@@ -3313,7 +3314,8 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
 
   // Set flag that basic initialization has completed. Used by exceptions and various
   // debug stuff, that does not work until all basic classes have been initialized.
-  set_init_completed();
+  set_init_completed(); //设置初始化完成的flag为true
+  //jvm运行环境初始化成功
 
   HS_DTRACE_PROBE(hotspot, vm__init__end);
 
@@ -3334,6 +3336,7 @@ jint Threads::create_vm(JavaVMInitArgs* args, bool* canTryAgain) {
   // Support for ConcurrentMarkSweep. This should be cleaned up
   // and better encapsulated. The ugly nested if test would go away
   // once things are properly refactored. XXX YSR
+  //启用gc 使用java.lang.Thread启动gc线程
   if (UseConcMarkSweepGC || UseG1GC) {
     if (UseConcMarkSweepGC) {
       ConcurrentMarkSweepThread::makeSurrogateLockerThread(THREAD);

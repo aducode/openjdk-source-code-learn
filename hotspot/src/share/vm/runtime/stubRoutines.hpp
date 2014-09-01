@@ -244,7 +244,7 @@ class StubRoutines: AllStatic {
     TRAPS
   );
 
-  static CallStub call_stub()                              { return CAST_TO_FN_PTR(CallStub, _call_stub_entry); }
+  static CallStub call_stub()                              { return CAST_TO_FN_PTR(CallStub, _call_stub_entry);/*return ((CallStub)(castable_address(_call_stub_entry)));*/ }
 
   // Exceptions
   static address forward_exception_entry()                 { return _forward_exception_entry; }

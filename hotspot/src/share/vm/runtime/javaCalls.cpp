@@ -314,9 +314,18 @@ void JavaCalls::call(JavaValue* result, methodHandle method, JavaCallArguments* 
   assert(THREAD->is_Java_thread(), "only JavaThreads can make JavaCalls");
   // Need to wrap each and everytime, since there might be native code down the
   // stack that has installed its own exception handlers
+  //根据系统不同，处理异常
+  //真正调用的逻辑在call_helper方法中
   os::os_exception_wrapper(call_helper, result, &method, args, THREAD);
 }
 
+//真正的调用逻辑
+/**
+ * @Param result保存结果
+ * @Param m 方法对象
+ * @Param  args 参数列表
+ * @Param __thread__  调用线程
+ */
 void JavaCalls::call_helper(JavaValue* result, methodHandle* m, JavaCallArguments* args, TRAPS) {
   methodHandle method = *m;
   JavaThread* thread = (JavaThread*)THREAD;
@@ -353,7 +362,10 @@ void JavaCalls::call_helper(JavaValue* result, methodHandle* m, JavaCallArgument
 
 
   assert(!thread->is_Compiler_thread(), "cannot compile from the compiler");
+  //jit优化
   if (CompilationPolicy::must_be_compiled(method)) {
+	  //CompilationPolicy::must_be_compiled会判断方法是否需要jit编译成机器码
+	  //如果需要，执行编译
     CompileBroker::compile_method(method, InvocationEntryBci,
                                   CompLevel_initial_compile,
                                   methodHandle(), 0, "must_be_compiled", CHECK);
@@ -364,6 +376,9 @@ void JavaCalls::call_helper(JavaValue* result, methodHandle* m, JavaCallArgument
   // run interpreted.
   address entry_point = method->from_interpreted_entry();
   if (JvmtiExport::can_post_interpreter_events() && thread->is_interp_only_mode()) {
+	  //解释器入口 使用method中methodOopDesc类中的的_i2i_entry
+	  //method link到c时会用到下面的table
+	  //AbstractInterpreter::_entry_table  不同类型的java方法调用，使用不同的c call
     entry_point = method->interpreter_entry();
   }
 
@@ -397,6 +412,7 @@ void JavaCalls::call_helper(JavaValue* result, methodHandle* m, JavaCallArgument
   }
 
   // do call
+  //真正的调用
   { JavaCallWrapper link(method, receiver, result, CHECK);
     { HandleMark hm(thread);  // HandleMark used by HandleMarkCleaner
 

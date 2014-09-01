@@ -1066,6 +1066,7 @@ static methodHandle jni_resolve_virtual_call(Handle recv, methodHandle method, T
 
 
 static void jni_invoke_static(JNIEnv *env, JavaValue* result, jobject receiver, JNICallType call_type, jmethodID method_id, JNI_ArgumentPusher *args, TRAPS) {
+	//包装成一个handle
   methodHandle method(THREAD, JNIHandles::resolve_jmethod_id(method_id));
 
   // Create object to hold arguments for the JavaCall, and associate it with
@@ -1083,6 +1084,7 @@ static void jni_invoke_static(JNIEnv *env, JavaValue* result, jobject receiver, 
   result->set_type(args->get_ret_type());
 
   // Invoke the method. Result is returned as oop.
+  //调用java方法
   JavaCalls::call(result, method, &java_args, CHECK);
 
   // Convert result
@@ -1664,6 +1666,7 @@ JNI_ENTRY(void, jni_CallStaticVoidMethodV(JNIEnv *env, jclass cls, jmethodID met
 
   JavaValue jvalue(T_VOID);
   JNI_ArgumentPusherVaArg ap(methodID, args);
+  //执行main方法的入口，执行静态方法
   jni_invoke_static(env, &jvalue, NULL, JNI_STATIC, methodID, &ap, CHECK);
 JNI_END
 

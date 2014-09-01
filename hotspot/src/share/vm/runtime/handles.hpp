@@ -189,6 +189,31 @@ class KlassHandle: public Handle {
 
 DEF_HANDLE(instance         , is_instance         )
 DEF_HANDLE(method           , is_method           )
+//红展开类似如下
+/////////////////////////////////////////////////
+/*
+ class methodHandle;
+  class methodHandle: public Handle {
+   protected:
+    methodOop    obj() const                      { return (methodOop)Handle::obj(); }
+    methodOop    non_null_obj() const             { return (methodOop)Handle::non_null_obj(); }
+
+   public:
+    methodHandle ()                              : Handle()                 {}
+    methodHandle (methodOop obj) : Handle((oop)obj) {
+      ;
+    }
+    methodHandle (Thread* thread, methodOop obj) : Handle(thread, (oop)obj) {
+      ;
+    }
+
+    methodHandle (methodOop *handle, bool dummy) : Handle((oop*)handle, dummy) {}
+
+    methodOop    operator () () const            { return obj(); }
+    methodOop    operator -> () const            { return non_null_obj(); }
+  };
+*/
+ /////////////////////////////////////////////////////
 DEF_HANDLE(constMethod      , is_constMethod      )
 DEF_HANDLE(methodData       , is_methodData       )
 DEF_HANDLE(array            , is_array            )

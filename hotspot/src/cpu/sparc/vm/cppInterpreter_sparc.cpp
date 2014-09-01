@@ -1677,7 +1677,6 @@ address InterpreterGenerator::generate_normal_entry(bool synchronized) {
   __ set((int)BytecodeInterpreter::deopt_resume, L1_scratch);
   __ ba(false, call_interpreter);
   __ delayed()->st(L1_scratch, STATE(_msg));
-
   // Current frame has caught an exception we need to dispatch to the
   // handler. We can get here because a native interpreter frame caught
   // an exception in which case there is no handler and we must rethrow
