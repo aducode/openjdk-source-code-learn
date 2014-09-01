@@ -673,6 +673,7 @@ void java_lang_Class::compute_offsets() {
   assert(!offsets_computed, "offsets should be initialized only once");
   offsets_computed = true;
 
+  //调用宏展开后的 static klassOop Class_klass() { return check_klass_Pre(_well_known_klasses[Class_klass_knum]); } 函数
   klassOop k = SystemDictionary::Class_klass();
   // The classRedefinedCount field is only present starting in 1.5,
   // so don't go fatal.
@@ -3159,7 +3160,8 @@ void JavaClasses::check_offsets() {
   valid &= check_constant(klass_name, cpp_klass_name :: field_name, #field_name, field_sig)
 
   // java.lang.String
-
+  //宏展开
+  //valid &= check_offset("java/lang/String", java_lang_String :: value_offset, "value", "[C")
   CHECK_OFFSET("java/lang/String", java_lang_String, value, "[C");
   CHECK_OFFSET("java/lang/String", java_lang_String, offset, "I");
   CHECK_OFFSET("java/lang/String", java_lang_String, count, "I");

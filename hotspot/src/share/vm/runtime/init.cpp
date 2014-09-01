@@ -99,13 +99,15 @@ jint init_globals() {
   HandleMark hm;
   //初始化一些计数器
   management_init();
-  //初始化java字节码指令
+  //初始化java字节码指令 byte 数值
   bytecodes_init();
   //初始化system  class loader
   classLoader_init();
-  //
+  //JIT(及时编译)产生的机器码的缓存
   codeCache_init();
+  //虚拟机版本信息
   VM_Version_init();
+  //jit编译成的机器码入口 c1 编译
   stubRoutines_init1();
   jint status = universe_init();  // dependent on codeCache_init and stubRoutines_init
   if (status != JNI_OK)
@@ -118,26 +120,36 @@ jint init_globals() {
   marksweep_init();
   //控制
   accessFlags_init();
-  //
+  //字节码table
   templateTable_init();
+  //
   InterfaceSupport_init();
+  //jit相关
   SharedRuntime::generate_stubs();
   universe2_init();  // dependent on codeCache_init and stubRoutines_init
+  //java对象引用处理
   referenceProcessor_init();
+  //初始化全局/局部jni handles
   jni_handles_init();
 #ifndef VM_STRUCTS_KERNEL
   vmStructs_init();
 #endif // VM_STRUCTS_KERNEL
-
+//初始化虚表 用于动态绑定
   vtableStubs_init();
+  //JIT 内联cache
   InlineCacheBuffer_init();
+  //
   compilerOracle_init();
+  //CompilationPolicy 用于选择jit编译的方法或者代码块
   compilationPolicy_init();
   VMRegImpl::set_regName();
 
   if (!universe_post_init()) {
     return JNI_ERR;
   }
+  //计算/检查 jvm预加载的 java.lang.*等 well-known-class
+  //保证java.lang包下类的正确性，不能轻易被修改，替换
+  //初始化过field 过滤器
   javaClasses_init();  // must happen after vtable initialization
   stubRoutines_init2(); // note: StubRoutines need 2-phase init
 

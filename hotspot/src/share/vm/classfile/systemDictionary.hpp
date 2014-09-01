@@ -424,6 +424,9 @@ public:
 public:
   #define WK_KLASS_DECLARE(name, ignore_symbol, option) \
     static klassOop name() { return check_klass_##option(_well_known_klasses[WK_KLASS_ENUM_NAME(name)]); }
+  //注意宏展开顺序
+  //先展开 WK_KLASSES_DO(template)     ==>  WK_KLASS_DECLARE作为template
+  //XXX_klass_knum 在 SystemDictionary.hpp的enum WKID中定义
   WK_KLASSES_DO(WK_KLASS_DECLARE);
   #undef WK_KLASS_DECLARE
 
