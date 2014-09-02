@@ -83,6 +83,40 @@ class Runtime1: public AllStatic {
 
  public:
   enum StubID {
+	  //宏展开
+//	  dtrace_object_alloc_id ,          \
+//	    unwind_exception_id ,             \
+//	    forward_exception_id ,            \
+//	    throw_range_check_failed_id ,       /* throws ArrayIndexOutOfBoundsException */ \
+//	    throw_index_exception_id ,          /* throws IndexOutOfBoundsException */ \
+//	    throw_div0_exception_id ,         \
+//	    throw_null_pointer_exception_id , \
+//	    register_finalizer_id ,           \
+//	    new_instance_id ,                 \
+//	    fast_new_instance_id ,            \
+//	    fast_new_instance_init_check_id , \
+//	    new_type_array_id ,               \
+//	    new_object_array_id ,             \
+//	    new_multi_array_id ,              \
+//	    handle_exception_nofpu_id ,         /* optimized version that does not preserve fpu registers */ \
+//	    handle_exception_id ,             \
+//	    handle_exception_from_callee_id , \
+//	    throw_array_store_exception_id ,  \
+//	    throw_class_cast_exception_id ,   \
+//	    throw_incompatible_class_change_error_id ,   \
+//	    slow_subtype_check_id ,           \
+//	    monitorenter_id ,                 \
+//	    monitorenter_nofpu_id ,             /* optimized version that does not preserve fpu registers */ \
+//	    monitorexit_id ,                  \
+//	    monitorexit_nofpu_id ,              /* optimized version that does not preserve fpu registers */ \
+//	    access_field_patching_id ,        \
+//	    load_klass_patching_id ,          \
+//	    jvmti_exception_throw_id ,        \
+//	    g1_pre_barrier_slow_id ,          \
+//	    g1_post_barrier_slow_id ,         \
+//	    fpu2long_stub_id ,                \
+//	    counter_overflow_id ,             \
+//	    number_of_ids
     RUNTIME1_STUBS(DECLARE_STUB_ID, DECLARE_LAST_STUB_ID)
   };
 

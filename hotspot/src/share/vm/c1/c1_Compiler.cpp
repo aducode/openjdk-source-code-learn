@@ -54,7 +54,9 @@ Compiler::~Compiler() {
 
 
 void Compiler::initialize_all() {
+	//CompilerThread 专门用于jit编译的线程
   BufferBlob* buffer_blob = CompilerThread::current()->get_buffer_blob();
+  //Arena allocation时的memory pool
   Arena* arena = new Arena();
   Runtime1::initialize(buffer_blob);
   FrameMap::initialize();
